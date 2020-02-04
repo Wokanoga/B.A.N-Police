@@ -2,7 +2,6 @@ import discord
 import logging
 from discord.ext import commands
 
-TOKEN = 'Njc0MDA1Njg2MjM3MDAzNzk3.Xji2Gw.z0b6wHFaDrhLnUtV7labVGtNPjA'
 client = discord.Client()
 
 logger = logging.getLogger('discord')
@@ -21,19 +20,10 @@ async def on_connect():
 async def on_ready():
     print('Logged in as {0.user}, ID {0.user.id}'.format(client))
     print('Ready to B.A.N\n')
-    that_cheese = discord.utils.get(client.get_all_channels(), id=153306465367490560)
-    # print(client.user.name)
-    # print(client.user.id)
-    # -------------------------------------------------------------
-    # my id
-    # user = discord.utils.get(client.get_all_members(), id=81423485208891392)
-    # Anders id
-    # user = discord.utils.get(client.get_all_members(), id=140901403592884224)
-    # print(f'Target user is {user}')
-    # if user is None:
-    #     return
-    # else:
-    #     await user.send("A message for you")
+    wokanoga = discord.utils.get(client.get_all_members(), id=81423485208891392)
+    shadow_realm_members = discord.utils.get(client.get_all_channels(), id=306630991018065932).members
+    print(shadow_realm_members)
+    print(True) if wokanoga in shadow_realm_members else print(False)
 
 
 @client.event
@@ -42,6 +32,12 @@ async def on_message(message):
     if message.author == client.user:
         return
     # elif message.content.startswith('B.A.N'):
+    elif message.content == 'bpTest':
+        print('bpTest')
+    elif message.content == 'bpTest ban all':
+        that_cheese_members = discord.utils.get(client.get_all_channels(), id=153306465367490560).members
+        print('Message Event ran')
+        await ban_all(that_cheese_members)
     elif message.content == 'B.A.N Ander':
         user = discord.utils.get(client.get_all_members(), id=81423485208891392)
         shadow_realm = discord.utils.get(client.get_all_channels(), id=306630991018065932)
@@ -55,12 +51,19 @@ async def on_message(message):
 
 @client.event
 async def on_group_join(channel, user):
+    # group is not voice.  Fuck.
     print('Event ran')
     shadow_realm = discord.utils.get(client.get_all_channels(), id=306630991018065932)
     if channel is shadow_realm:
         print(f'User {user}, joined a channel that was not the Shadow Realm')
     else:
         print(f'User {user}, was banished to the Shadow Realm')
+
+
+async def ban_all(members):
+    # I might want to make this go through all my channels and not just the one sent.
+    for member in members:
+        print(f'ban {member}')
 
 
 client.run(TOKEN)
