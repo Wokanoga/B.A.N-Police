@@ -1,9 +1,10 @@
 import discord
 import logging
-from discord.ext import commands
+import secret.token
 
+TOKEN = secret.token.get_token()
 client = discord.Client()
-
+print(TOKEN)
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
