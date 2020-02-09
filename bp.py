@@ -1,6 +1,7 @@
 import discord
 import logging
 import time
+import re
 import secret.token
 
 TOKEN = secret.token.get_token()
@@ -31,7 +32,6 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    # on_message fires on EVERY message in every channel that the bot is in.  Including dms.
     if message.author == client.user or message.content.startswith('B.A.N') is not True:
         return
     elif message.content.endswith('fuck'):
@@ -40,14 +40,16 @@ async def on_message(message):
         for channel in message.guild.voice_channels:
             if channel is not message.guild.afk_channel:
                 await ban_all_users(message.guild, channel.members)
-    elif message.content == 'B.A.N Ander':
-        user = get_user(ander)
-        if user is None:
+    elif message.content.startswith('B.A.N <@!'):
+        user_id = int(re.search(r'[0-9]+', message.content).group())
+        user = await get_user(user_id)
+        print(user)
+        if user is None or user == client.user:
             return
         else:
             await user.move_to(message.guild.afk_channel, reason=None)
     elif message.content == 'B.A.N Ander a lot':
-        user = get_user(ander)
+        user = await get_user(ander)
         if user is None or user in black_list:
             return
         else:
@@ -55,7 +57,7 @@ async def on_message(message):
             black_list.append(user)
             time.sleep(10)
             black_list.remove(user)
-    elif message.startswith == 'B.A.N perma':
+    elif message.content.startswith('B.A.N perma'):
         user = get_user(ander)
         if user is None:
             return
@@ -65,9 +67,7 @@ async def on_message(message):
 
 @client.event
 async def on_voice_state_update(member, before, after):
-    # Fires when a member mutes, deafens, unmutes, undeafens, leaves a voice channel, or joins a voice channel, in any
-    # guild the bot is connected too.
-    print(f'{member}\n{before}\n{after}\n')
+    # print(f'{member}\n{before}\n{after}\n')
     if member in black_list:
         print(member)
 
@@ -82,10 +82,7 @@ async def ban_user(guild, member):
 
 
 async def get_user(arg):
-    if type(arg) == int:
-        return discord.utils.get(client.get_all_members(), id=arg)
-    # else:
-    #     return discord.utils.find(lambda m: m.name == arg, channel.guild.members)
+    return discord.utils.get(client.get_all_members(), id=arg)
 
 
 client.run(TOKEN)
