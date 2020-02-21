@@ -1,6 +1,7 @@
 import discord
 import logging
 import time
+import asyncio
 import re
 import secret.token
 
@@ -37,44 +38,38 @@ async def on_message(message):
     elif message.content.endswith('fuck'):
         print(True)
     elif message.content == 'B.A.N All':
+        # I need to use tasks here so speed up the process
         for channel in message.guild.voice_channels:
             if channel is not message.guild.afk_channel:
-                await ban_all_users(message.guild, channel.members)
+                ban_users_task = asyncio.create_task(ban_all_users(message.guild, channel.members))
+                await ban_users_task
+    elif message.content == 'B.A.N Move':
+        print('do stuff')
     elif message.content.startswith('B.A.N <@!'):
+        # example
+        # B.A.N @wokanoga h2m4s8
         user_id = int(re.search(r'[0-9]+', message.content).group())
         user = await get_user(user_id)
-        print(user)
-        if user is None or user == client.user:
+        if user is None or user == client.user or user in black_list:
             return
         else:
             await user.move_to(message.guild.afk_channel, reason=None)
-    elif message.content == 'B.A.N Ander a lot':
-        user = await get_user(ander)
-        if user is None or user in black_list:
-            return
-        else:
-            user.move_to(message.guild.afk_channel, reason=None)
             black_list.append(user)
-            time.sleep(10)
-            black_list.remove(user)
-    elif message.content.startswith('B.A.N perma'):
-        user = get_user(ander)
-        if user is None:
-            return
-        else:
-            print('fuck')
+    elif message.content == 'B.A.N clear':
+        black_list.clear()
 
 
 @client.event
 async def on_voice_state_update(member, before, after):
-    # print(f'{member}\n{before}\n{after}\n')
-    if member in black_list:
-        print(member)
+    if member in black_list and after.channel is not None and after.channel is not member.guild.afk_channel:
+        move_task = asyncio.create_task(member.move_to(member.guild.afk_channel, reason=None))
+        await move_task
 
 
 async def ban_all_users(guild, members):
     for member in members:
-        await member.move_to(guild.afk_channel, reason=None)
+        move_task = asyncio.create_task(member.move_to(guild.afk_channel, reason=None))
+        await move_task
 
 
 async def ban_user(guild, member):
