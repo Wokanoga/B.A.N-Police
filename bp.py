@@ -3,9 +3,9 @@ import logging
 import time
 import asyncio
 import re
-import secret.token
+import secret.token as secret
 
-TOKEN = secret.token.get_token()
+TOKEN = secret.get_token()
 client = discord.Client()
 
 logger = logging.getLogger('discord')
